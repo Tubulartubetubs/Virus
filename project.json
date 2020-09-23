@@ -1,0 +1,28 @@
+{
+    "project_type": "javascript",
+    "debugMode": 1,
+    "showFPS": true,
+    "frameRate": 60,
+    "noCache": false,
+    "id": "gameCanvas",
+    "renderMode": 0,
+    "engineDir": "frameworks/cocos2d-html5",
+    "modules": [
+        "cocos2d",
+        "extensions"
+    ],
+    "jsListOrder": [
+        "src/**/*.js"
+    ],
+    "jsList": [
+        "src/Component/ToMainScene.js",
+        "src/Component/ToTitleScreen.js",
+        "src/Layer/EndLayer.js",
+        "src/Layer/GameLayerES6.js",
+        "src/Layer/TitleLayer.js",
+        "src/resource.js",
+        "src/Scene/EndScene.js",
+        "src/Scene/GameScene.js",
+        "src/Scene/TitleScene.js"
+    ]
+}
