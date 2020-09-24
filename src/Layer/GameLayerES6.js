@@ -12,7 +12,7 @@ class GameLayerES6 extends cc.Layer{
         this.time_left = 120;
 
         this.tileArray = [];
-        this.tileTypes = ["invader", "ghost", "infiltrator", "alien", "predator", "poltergeist"];
+        this.tileTypes = 6;
 
         this.size = cc.winSize;
         this.xPosition = this.size.width/2 - this.tileSize*this.platform/2;
@@ -24,7 +24,6 @@ class GameLayerES6 extends cc.Layer{
         this.matchV = [];
         this.results = [];
         this.collisions = [];
-        this.resultFlag = true;
 
         //space, where the foods at 
         this.space = cc.Layer.create();
@@ -48,11 +47,11 @@ class GameLayerES6 extends cc.Layer{
         //for tiles
 
         //labels
-        this.score_label = new cc.LabelTTF("Score: "+ this.score, "Arial", 40);
+        this.score_label = new cc.LabelTTF("Score: "+ this.score, "Arial", 50);
         this.score_label.x = this.size.width/4;
         this.score_label.y = this.size.height/2 + 200;
         this.space.addChild(this.score_label, 1);;
-        this.time_left_label = new cc.LabelTTF("Time: "+ this.time_left, "Arial", 40);
+        this.time_left_label = new cc.LabelTTF("Time: "+ this.time_left, "Arial", 50);
         this.time_left_label.x = this.size.width/4;
         this.time_left_label.y = 0 - this.size.height/10;
         this.space.addChild(this.time_left_label, 1);;
@@ -69,7 +68,7 @@ class GameLayerES6 extends cc.Layer{
 
     addTile(row, col){ //just adds tiles
         var tSize = this.tileSize;
-        var randomTile = Math.floor(Math.random()*this.tileTypes.length);
+        var randomTile = Math.floor(Math.random() * this.tileTypes);
         var sprite = null;
 
         switch(randomTile){
@@ -123,73 +122,75 @@ class GameLayerES6 extends cc.Layer{
             x = this._node.preX;
             y = this._node.preY-1;
         }
+        if(x == this._node.preX && y == this._node.preY){
+            //do nothing
+        }else {
+            //bascially remove then switch places initial first
+            var prevFood = this._node.tileArray[this._node.preY][this._node.preX];
+            var postFood = this._node.tileArray[y][x];
 
-        //bascially remove then switch places initial first
-        var prevFood = this._node.tileArray[this._node.preY][this._node.preX];
-        var postFood = this._node.tileArray[y][x];
+            this._node.space.removeChild(this._node.tileArray[this._node.preY][this._node.preX]);
+            this._node.space.removeChild(this._node.tileArray[y][x]);
 
-        this._node.space.removeChild(this._node.tileArray[this._node.preY][this._node.preX]);
-        this._node.space.removeChild(this._node.tileArray[y][x]);
-
-        this._node.tileArray[this._node.preY][this._node.preX] = null;
-        this._node.tileArray[y][x] = null;
-        
-        switch(postFood.val){
-            case 0:
-                sprite = cc.Sprite.create(res.c1_png);
-                break;
-            case 1:
-                sprite = cc.Sprite.create(res.c2_png);
-                break;
-            case 2:
-                sprite = cc.Sprite.create(res.c3_png);
-                break;
-            case 3:
-                sprite = cc.Sprite.create(res.c4_png);
-                break;
-            case 4:
-                sprite = cc.Sprite.create(res.c5_png);
-                break;
-            case 5:
-                sprite = cc.Sprite.create(res.c6_png);
-                break;
+            this._node.tileArray[this._node.preY][this._node.preX] = null;
+            this._node.tileArray[y][x] = null;
+            
+            switch(postFood.val){
+                case 0:
+                    sprite = cc.Sprite.create(res.c1_png);
+                    break;
+                case 1:
+                    sprite = cc.Sprite.create(res.c2_png);
+                    break;
+                case 2:
+                    sprite = cc.Sprite.create(res.c3_png);
+                    break;
+                case 3:
+                    sprite = cc.Sprite.create(res.c4_png);
+                    break;
+                case 4:
+                    sprite = cc.Sprite.create(res.c5_png);
+                    break;
+                case 5:
+                    sprite = cc.Sprite.create(res.c6_png);
+                    break;
+            }
+            sprite.val = postFood.val;
+            sprite.power = 0;
+            sprite.picked = false;
+            sprite.setScale(0.55);
+            this._node.space.addChild(sprite,1);
+            sprite.setPosition(this._node.preX*60+60/2, this._node.preY*60+60/2);
+            this._node.tileArray[this._node.preY][this._node.preX] = sprite;
+            //bascially remove then switch places after initial
+            switch(prevFood.val){
+                case 0:
+                    sprite = cc.Sprite.create(res.c1_png);
+                    break;
+                case 1:
+                    sprite = cc.Sprite.create(res.c2_png);
+                    break;
+                case 2:
+                    sprite = cc.Sprite.create(res.c3_png);
+                    break;
+                case 3:
+                    sprite = cc.Sprite.create(res.c4_png);
+                    break;
+                case 4:
+                    sprite = cc.Sprite.create(res.c5_png);
+                    break;
+                case 5:
+                    sprite = cc.Sprite.create(res.c6_png);
+                    break;
+            }
+            sprite.val = prevFood.val;
+            sprite.power = 0;
+            sprite.picked = false;
+            sprite.setScale(0.55);
+            this._node.space.addChild(sprite,1);
+            sprite.setPosition(x*60+60/2, y*60+60/2);
+            this._node.tileArray[y][x] = sprite;
         }
-        sprite.val = postFood.val;
-        sprite.power = 0;
-        sprite.picked = false;
-        sprite.setScale(0.55);
-        this._node.space.addChild(sprite,1);
-        sprite.setPosition(this._node.preX*60+60/2, this._node.preY*60+60/2);
-        this._node.tileArray[this._node.preY][this._node.preX] = sprite;
-        //bascially remove then switch places after initial
-        switch(prevFood.val){
-            case 0:
-                sprite = cc.Sprite.create(res.c1_png);
-                break;
-            case 1:
-                sprite = cc.Sprite.create(res.c2_png);
-                break;
-            case 2:
-                sprite = cc.Sprite.create(res.c3_png);
-                break;
-            case 3:
-                sprite = cc.Sprite.create(res.c4_png);
-                break;
-            case 4:
-                sprite = cc.Sprite.create(res.c5_png);
-                break;
-            case 5:
-                sprite = cc.Sprite.create(res.c6_png);
-                break;
-        }
-        sprite.val = prevFood.val;
-        sprite.power = 0;
-        sprite.picked = false;
-        sprite.setScale(0.55);
-        this._node.space.addChild(sprite,1);
-        sprite.setPosition(x*60+60/2, y*60+60/2);
-        this._node.tileArray[y][x] = sprite;
-
     }
 
     onMouseDown(event){ //gets initial tile to switch with
@@ -199,56 +200,7 @@ class GameLayerES6 extends cc.Layer{
         this._node.preY = y;
     }
 
-    searchMatches(cRow, cCol){
-        this.matchH = [];
-        this.matchV = [];
-
-        this.matchH.push({
-            row: cRow,
-            col: cCol,
-            val: this.tileArray[cRow][cCol].val
-        });
-
-        for(var i=-1; (cCol+i<this.platform && cCol+i>=0) && this.tileArray[cRow][cCol+i].val == this.tileArray[cRow][cCol].val; i--){
-            this.matchH.push({
-                row: cRow,
-                col: cCol+i,
-                val: this.tileArray[cRow][cCol+i].val
-            });
-        }
-
-        for(var i=1; (cCol+i<this.platform && cCol+i>=0) && this.tileArray[cRow][cCol+i].val == this.tileArray[cRow][cCol].val; i++){
-            this.matchH.push({
-                row: cRow,
-                col: cCol+i,
-                val: this.tileArray[cRow][cCol+i].val
-            });
-        }
-
-        this.matchV.push({
-            row: cRow,
-            col: cCol,
-            val: this.tileArray[cRow][cCol].val
-        });
-
-        for(var i=1; (cRow+i<this.platform && cRow+i>=0) && this.tileArray[cRow+i][cCol].val == this.tileArray[cRow][cCol].val; i++){
-            this.matchV.push({
-                row: cRow+i,
-                col: cCol,
-                val: this.tileArray[cRow+i][cCol].val
-            });
-        }
-        for(var i=-1; (cRow+i<this.platform && cRow+i>=0) && this.tileArray[cRow+i][cCol].val == this.tileArray[cRow][cCol].val; i--){
-            this.matchV.push({
-                row: cRow+i,
-                col: cCol,
-                val: this.tileArray[cRow+i][cCol].val
-            });
-        }
-        return 0;
-    }
-
-    process_results(){
+    anyare(){ //just checks if tha matched na nakita is valid tapos lalagay sa results
         if(this.matchH.length >= this.matchReq && this.matchV.length >= this.matchReq){
             for(var i=0; i<this.matchH.length; i++){
                 this.results.push(this.matchH[i]);
@@ -273,9 +225,58 @@ class GameLayerES6 extends cc.Layer{
         return 0;
     }
 
-    fallTile(row, col, height){
+    searcher(cRow, cCol){ //searches possible matches made already
+        this.matchH = [];
+        this.matchV = [];
+
+        this.matchH.push({
+            row: cRow,
+            col: cCol,
+            val: this.tileArray[cRow][cCol].val
+        });
+        //horizontal checks (col)
+        for(var i=-1; (cCol+i<this.platform && cCol+i>=0) && this.tileArray[cRow][cCol+i].val == this.tileArray[cRow][cCol].val; i--){
+            this.matchH.push({
+                row: cRow,
+                col: cCol+i,
+                val: this.tileArray[cRow][cCol+i].val
+            });
+        }
+
+        for(var i=1; (cCol+i<this.platform && cCol+i>=0) && this.tileArray[cRow][cCol+i].val == this.tileArray[cRow][cCol].val; i++){
+            this.matchH.push({
+                row: cRow,
+                col: cCol+i,
+                val: this.tileArray[cRow][cCol+i].val
+            });
+        }
+
+        this.matchV.push({
+            row: cRow,
+            col: cCol,
+            val: this.tileArray[cRow][cCol].val
+        });
+        //vertical checks (row)
+        for(var i=1; (cRow+i<this.platform && cRow+i>=0) && this.tileArray[cRow+i][cCol].val == this.tileArray[cRow][cCol].val; i++){
+            this.matchV.push({
+                row: cRow+i,
+                col: cCol,
+                val: this.tileArray[cRow+i][cCol].val
+            });
+        }
+        for(var i=-1; (cRow+i<this.platform && cRow+i>=0) && this.tileArray[cRow+i][cCol].val == this.tileArray[cRow][cCol].val; i--){
+            this.matchV.push({
+                row: cRow+i,
+                col: cCol,
+                val: this.tileArray[cRow+i][cCol].val
+            });
+        }
+        return 0;
+    }
+
+    fallTile(row, col, height){ //generation lang na ihuhulog na tiles from the top
         var sprite = null;
-        var randomTile = Math.floor(Math.random()*this.tileTypes.length);
+        var randomTile = Math.floor(Math.random() * this.tileTypes);
         switch(randomTile){
             case 0:
                 sprite = cc.Sprite.create(res.c1_png);
@@ -302,16 +303,15 @@ class GameLayerES6 extends cc.Layer{
         sprite.picked = false;
         sprite.setScale(0.55);
         this.space.addChild(sprite,0);
-        sprite.setPosition(col*60+60/2,(this.platform+height)*60);
-        var moveAction = cc.MoveTo.create(0, new cc.Point(col*60+60/2,row*60+60/2));
+        sprite.setPosition(col*60+60/2,(this.platform + height) *60);
+        var moveAction = cc.MoveTo.create(0, new cc.Point(col * 60+60/2, row * 60+60/2));
         sprite.runAction(moveAction);
         this.tileArray[row][col] = sprite;
 
         return 0;
     }
 
-    deleteMatchTile(){
-        this.resultFlag = false;
+    deleteMatchTile(){ //deletion lang ng tiles
         for(var i=0; i<this.results.length; i++){
             this.space.removeChild(this.tileArray[this.results[i].row][this.results[i].col]);
             this.tileArray[this.results[i].row][this.results[i].col]=null;
@@ -343,19 +343,7 @@ class GameLayerES6 extends cc.Layer{
         return 0;
     }
 
-    searchSameTile(){
-        this.results = [];
-
-        this.searchMatches(this.history[0].row, this.history[0].col);
-        this.process_results();
-        this.searchMatches(this.history[1].row, this.history[1].col);
-        this.process_results();
-        
-        if(this.results.length >= this.matchReq) this.deleteMatchTile();
-        return 0;
-    }
-
-    fallTileCreate(){
+    fallTileCreate(){ //gets tiles na wala laman ganern para malagyan at mahulugan
         for(var i = 0; i < this.platform; i ++){
             for(var j = this.platform-1; j>=0; j --){
                 if(this.tileArray[j][i] != null){
@@ -364,9 +352,9 @@ class GameLayerES6 extends cc.Layer{
             }
             var miss = this.platform-1-j;
             if(miss>0){
-                for(var j=0;j<miss;j++){
-                    if(this.tileArray[this.platform-j-1][i] == null){
-                    this.fallTile(this.platform-j-1,i,miss-j);   
+                for(var k = 0; k < miss; k++){
+                    if(this.tileArray[this.platform-k-1][i] == null){
+                    this.fallTile(this.platform-k-1, i, miss-k);   
                     }
                 }
             }
@@ -374,14 +362,14 @@ class GameLayerES6 extends cc.Layer{
         return 0;
     }
 
-    checkCollision(){
+    checkCollision(){ //checks lang positioning ng mga tiles and if may combinations made especially pag nag switch
         this.results = [];
         for(var i=0; i<this.collisions.length; i++){
             for(var j=this.collisions[i].row; j<this.platform; j++){
                 this.matchH = [];
                 this.matchV = [];
-                this.searchMatches(j, this.collisions[i].col);
-                this.process_results();
+                this.searcher(j, this.collisions[i].col);
+                this.anyare();
             }
         }
         if(this.results.length>=this.matchReq){
@@ -404,7 +392,7 @@ class GameLayerES6 extends cc.Layer{
             this.fallTileCreate();
             setTimeout(function(){
                 return 0;
-            }, 850);
+            }, 500);
         }
         return 0;
     }
